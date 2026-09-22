@@ -9,11 +9,12 @@ export default function ColorPicker({
   onChange: (id: ColorThemeId) => void;
 }) {
   return (
-    <div role="group" aria-label="Color">
+    <div role="group" aria-label="Color" className="picker-grid">
       {Object.values(COLOR_THEMES).map((theme) => (
         <button
           key={theme.id}
           type="button"
+          className="chip"
           aria-pressed={theme.id === value}
           onClick={() => onChange(theme.id)}
         >

@@ -22,11 +22,12 @@ export default function StepTabs({
 
   return (
     <div>
-      <div role="tablist">
+      <div role="tablist" className="tabs">
         {TABS.map((tab) => (
           <button
             key={tab.id}
             role="tab"
+            className="tab"
             aria-selected={active === tab.id}
             onClick={() => setActive(tab.id)}
           >

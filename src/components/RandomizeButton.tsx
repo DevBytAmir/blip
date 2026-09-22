@@ -33,7 +33,7 @@ export default function RandomizeButton({
   onRandomize: (patch: Partial<MorseConfig>) => void;
 }) {
   return (
-    <button type="button" onClick={() => onRandomize(pickRandomConfig())}>
+    <button type="button" className="primary" onClick={() => onRandomize(pickRandomConfig())}>
       Randomize
     </button>
   );

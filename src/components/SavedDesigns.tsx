@@ -6,11 +6,11 @@ export default function SavedDesigns({ onSelect }: { onSelect: (config: MorseCon
   const [designs, setDesigns] = useState(listSavedDesigns());
 
   if (designs.length === 0) {
-    return <p>No saved designs yet.</p>;
+    return <p className="status-message">No saved designs yet.</p>;
   }
 
   return (
-    <ul>
+    <ul className="saved-list">
       {designs.map((design) => (
         <li key={design.id}>
           <button type="button" onClick={() => onSelect(design.config)}>

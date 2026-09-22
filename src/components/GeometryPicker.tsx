@@ -20,9 +20,15 @@ export default function GeometryPicker({
   onChange: (id: GeometryId) => void;
 }) {
   return (
-    <div role="group" aria-label="Geometry">
+    <div role="group" aria-label="Geometry" className="picker-grid">
       {(Object.keys(GEOMETRY_LABELS) as GeometryId[]).map((id) => (
-        <button key={id} type="button" aria-pressed={id === value} onClick={() => onChange(id)}>
+        <button
+          key={id}
+          type="button"
+          className="chip"
+          aria-pressed={id === value}
+          onClick={() => onChange(id)}
+        >
           {GEOMETRY_LABELS[id]}
         </button>
       ))}

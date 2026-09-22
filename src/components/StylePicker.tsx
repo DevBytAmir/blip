@@ -9,11 +9,12 @@ export default function StylePicker({
   onChange: (id: StyleId) => void;
 }) {
   return (
-    <div role="group" aria-label="Style">
+    <div role="group" aria-label="Style" className="picker-grid">
       {Object.values(STYLE_PRESETS).map((preset) => (
         <button
           key={preset.id}
           type="button"
+          className="chip"
           aria-pressed={preset.id === value}
           onClick={() => onChange(preset.id)}
         >

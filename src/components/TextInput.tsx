@@ -28,27 +28,28 @@ export default function TextInput({ value, onChange, geometry }: TextInputProps)
   const cramped = isLikelyCramped(letters, geometry);
 
   return (
-    <div>
-      <label htmlFor="morse-text">Word</label>
+    <>
+      <label htmlFor="morse-text" className="field-label">Word</label>
       <input
         id="morse-text"
         type="text"
         role="textbox"
+        className="text-input"
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
       {strippedCount > 0 && (
-        <p role="status">
+        <p role="status" className="status-message">
           {strippedCount} character{strippedCount === 1 ? "" : "s"} removed (only A-Z and 0-9 can be
           Morse-encoded).
         </p>
       )}
       {cramped && (
-        <p role="status">
+        <p role="status" className="status-message">
           This might look cramped with the current geometry - try a shorter word or a different
           layout.
         </p>
       )}
-    </div>
+    </>
   );
 }

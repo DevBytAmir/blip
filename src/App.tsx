@@ -44,31 +44,59 @@ export default function App() {
   }
 
   return (
-    <main>
-      <h1>Blip</h1>
-      {restoreFailed && <p role="status">Couldn't restore that link, showing defaults instead.</p>}
+    <main className="app">
+      <h1 className="app-header">Blip</h1>
+      {restoreFailed && (
+        <p role="status" className="status-banner">
+          Couldn't restore that link, showing defaults instead.
+        </p>
+      )}
 
-      <TextInput
-        value={config.text}
-        onChange={(text) => applyConfigPatch({ text })}
-        geometry={config.geometry}
-      />
+      <section className="field panel" aria-label="Word">
+        <TextInput
+          value={config.text}
+          onChange={(text) => applyConfigPatch({ text })}
+          geometry={config.geometry}
+        />
+      </section>
 
       <AvatarPreviewWithRef config={config} svgRef={svgRef} />
 
-      <StepTabs config={config} onConfigChange={applyConfigPatch} />
-      <FineTunePanel
-        config={config}
-        touched={touched}
-        onConfigChange={applyConfigPatch}
-        onTouchedChange={(patch) => setTouched((prev) => ({ ...prev, ...patch }))}
-      />
-      <RandomizeButton onRandomize={applyConfigPatch} />
-      <ExportPanel svgRef={svgRef} />
-      <button type="button" onClick={() => saveDesign(config.text || "Untitled", config)}>
-        Save design
-      </button>
-      <SavedDesigns onSelect={(saved) => setConfig(saved)} />
+      <section className="panel" aria-labelledby="customize-heading">
+        <h2 id="customize-heading" className="panel-heading">Customize</h2>
+        <StepTabs config={config} onConfigChange={applyConfigPatch} />
+      </section>
+
+      <section className="panel" aria-labelledby="finetune-heading">
+        <h2 id="finetune-heading" className="panel-heading">Fine-tune</h2>
+        <FineTunePanel
+          config={config}
+          touched={touched}
+          onConfigChange={applyConfigPatch}
+          onTouchedChange={(patch) => setTouched((prev) => ({ ...prev, ...patch }))}
+        />
+      </section>
+
+      <section className="panel button-row" aria-label="Quick actions">
+        <RandomizeButton onRandomize={applyConfigPatch} />
+        <button
+          type="button"
+          className="action"
+          onClick={() => saveDesign(config.text || "Untitled", config)}
+        >
+          Save design
+        </button>
+      </section>
+
+      <section className="panel" aria-labelledby="export-heading">
+        <h2 id="export-heading" className="panel-heading">Export</h2>
+        <ExportPanel svgRef={svgRef} />
+      </section>
+
+      <section className="panel" aria-labelledby="saved-heading">
+        <h2 id="saved-heading" className="panel-heading">Your designs</h2>
+        <SavedDesigns onSelect={(saved) => setConfig(saved)} />
+      </section>
     </main>
   );
 }
@@ -82,6 +110,7 @@ function AvatarPreviewWithRef({
 }) {
   return (
     <div
+      className="avatar-stage"
       ref={(node) => {
         const svg = node?.querySelector<SVGSVGElement>('[data-testid="avatar-svg"]');
         if (svg) (svgRef as React.MutableRefObject<SVGSVGElement | null>).current = svg;

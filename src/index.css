@@ -1,0 +1,261 @@
+:root {
+  --bg: #0f1115;
+  --surface: #171a21;
+  --surface-raised: #1f232c;
+  --border: #2a2f3a;
+  --text: #f4f1ea;
+  --text-muted: #9aa0ab;
+  --accent: #6c8cff;
+  --accent-text: #0f1115;
+  --radius: 10px;
+  --radius-sm: 6px;
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+main.app {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 20px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.app-header {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.status-banner {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.panel-heading {
+  margin: 0 0 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.field-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.text-input {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.text-input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.status-message {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 4px 0 0;
+}
+
+.avatar-stage {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0;
+}
+
+.avatar-stage svg {
+  border-radius: 50%;
+  box-shadow: 0 8px 30px rgb(0 0 0 / 0.35);
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 14px;
+}
+
+.tab {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  padding: 8px 14px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.tab[aria-selected="true"] {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+
+.picker-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.chip:hover {
+  border-color: var(--accent);
+}
+
+.chip[aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--accent-text);
+  border-color: var(--accent);
+  font-weight: 600;
+}
+
+.fine-tune {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.fine-tune .field-label {
+  margin-bottom: 4px;
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+button {
+  font-family: inherit;
+}
+
+button.primary,
+button.action {
+  background: var(--surface-raised);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 9px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button.action:hover,
+button.primary:hover {
+  border-color: var(--accent);
+}
+
+button.primary {
+  background: var(--accent);
+  color: var(--accent-text);
+  border-color: var(--accent);
+}
+
+select#resolution {
+  background: var(--surface-raised);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-size: 0.9rem;
+}
+
+.saved-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.saved-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 6px 6px 12px;
+}
+
+.saved-list li button:first-child {
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 0.9rem;
+  cursor: pointer;
+  flex: 1;
+  text-align: left;
+  padding: 4px 0;
+}
+
+.saved-list li button[aria-label^="Delete"] {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.saved-list li button[aria-label^="Delete"]:hover {
+  color: #ff6b6b;
+}

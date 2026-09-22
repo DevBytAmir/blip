@@ -12,8 +12,8 @@ export default function ExportPanel({ svgRef }: { svgRef: RefObject<SVGSVGElemen
   };
 
   return (
-    <div>
-      <label htmlFor="resolution">Resolution</label>
+    <div className="field">
+      <label htmlFor="resolution" className="field-label">Resolution</label>
       <select
         id="resolution"
         value={resolution}
@@ -26,35 +26,45 @@ export default function ExportPanel({ svgRef }: { svgRef: RefObject<SVGSVGElemen
         ))}
       </select>
 
-      <button
-        type="button"
-        onClick={() =>
-          withSvg(async (svg) => {
-            const blob = await exportPngBlob(svg, resolution);
-            downloadBlob(blob, "blip.png");
-          })
-        }
-      >
-        Download PNG
-      </button>
+      <div className="button-row">
+        <button
+          type="button"
+          className="action"
+          onClick={() =>
+            withSvg(async (svg) => {
+              const blob = await exportPngBlob(svg, resolution);
+              downloadBlob(blob, "blip.png");
+            })
+          }
+        >
+          Download PNG
+        </button>
 
-      <button type="button" onClick={() => withSvg((svg) => downloadBlob(exportSvgBlob(svg), "blip.svg"))}>
-        Download SVG
-      </button>
+        <button
+          type="button"
+          className="action"
+          onClick={() => withSvg((svg) => downloadBlob(exportSvgBlob(svg), "blip.svg"))}
+        >
+          Download SVG
+        </button>
 
-      <button
-        type="button"
-        onClick={() =>
-          withSvg(async (svg) => {
-            const ok = await copyPngToClipboard(svg, resolution);
-            setCopyFailed(!ok);
-          })
-        }
-      >
-        Copy to clipboard
-      </button>
+        <button
+          type="button"
+          className="action"
+          onClick={() =>
+            withSvg(async (svg) => {
+              const ok = await copyPngToClipboard(svg, resolution);
+              setCopyFailed(!ok);
+            })
+          }
+        >
+          Copy to clipboard
+        </button>
+      </div>
       {copyFailed && (
-        <p role="status">Couldn't copy to clipboard in this browser -- use a download button instead.</p>
+        <p role="status" className="status-message">
+          Couldn't copy to clipboard in this browser -- use a download button instead.
+        </p>
       )}
     </div>
   );
