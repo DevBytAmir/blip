@@ -22,7 +22,6 @@ test("exportSvgBlob returns an image/svg+xml blob", () => {
 
 test("copyPngToClipboard resolves to false (not throw) when the Clipboard API is unavailable", async () => {
   const original = (navigator as any).clipboard;
-  // @ts-expect-error -- simulate an environment without Clipboard API support
   delete (navigator as any).clipboard;
 
   await expect(copyPngToClipboard(makeSvg(), 512)).resolves.toBe(false);
