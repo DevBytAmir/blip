@@ -17,7 +17,7 @@ export const renderBarcode: GeometryRenderer = (letters, params) => {
   let x = size / 2 - totalWidth / 2;
   const marks: Mark[] = [];
 
-  flat.forEach((s, i) => {
+  flat.forEach((_, i) => {
     x += gaps[i];
     const w = widths[i];
     marks.push({
