@@ -25,3 +25,35 @@ test("uses a rect clip for frame: square", () => {
   const svg = screen.getByTestId("avatar-svg");
   expect(svg.querySelector("clipPath rect")).not.toBeNull();
 });
+
+test("uses a custom solid background color when set, overriding the theme", () => {
+  render(
+    <AvatarPreview
+      config={{ ...DEFAULT_CONFIG, text: "HI", customBackground: { type: "solid", color: "#ff00ff" } }}
+    />
+  );
+  const svg = screen.getByTestId("avatar-svg");
+  const bgRect = svg.querySelector("g > rect");
+  expect(bgRect?.getAttribute("fill")).toBe("#ff00ff");
+});
+
+test("uses a custom gradient mark color when set, overriding the theme", () => {
+  render(
+    <AvatarPreview
+      config={{
+        ...DEFAULT_CONFIG,
+        text: "HI",
+        customMarkColor: {
+          type: "gradient",
+          angle: 0,
+          stops: [
+            { offset: 0, color: "#111111" },
+            { offset: 1, color: "#eeeeee" },
+          ],
+        },
+      }}
+    />
+  );
+  const svg = screen.getByTestId("avatar-svg");
+  expect(svg.querySelector("linearGradient")).not.toBeNull();
+});

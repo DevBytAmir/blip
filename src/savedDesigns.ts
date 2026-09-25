@@ -1,3 +1,4 @@
+import { isValidConfig } from "./configValidation";
 import type { MorseConfig } from "./types";
 
 const STORAGE_KEY = "blip.designs";
@@ -9,12 +10,23 @@ export interface SavedDesign {
   createdAt: number;
 }
 
+function isValidSavedDesign(value: unknown): value is SavedDesign {
+  if (typeof value !== "object" || value === null) return false;
+  const v = value as Record<string, unknown>;
+  return (
+    typeof v.id === "string" &&
+    typeof v.name === "string" &&
+    typeof v.createdAt === "number" &&
+    isValidConfig(v.config)
+  );
+}
+
 export function listSavedDesigns(): SavedDesign[] {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) return [];
   try {
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    return Array.isArray(parsed) ? parsed.filter(isValidSavedDesign) : [];
   } catch {
     return [];
   }

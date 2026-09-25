@@ -22,3 +22,26 @@ test("returns null for a config with an invalid enum value", () => {
   const badPayload = btoa(JSON.stringify(badConfig));
   expect(decodeConfigFromHash(badPayload)).toBeNull();
 });
+
+test("round-trips a config with a custom solid background and gradient mark", () => {
+  const config = {
+    ...DEFAULT_CONFIG,
+    customBackground: { type: "solid" as const, color: "#ff0000" },
+    customMarkColor: {
+      type: "gradient" as const,
+      angle: 45,
+      stops: [
+        { offset: 0, color: "#000000" },
+        { offset: 1, color: "#ffffff" },
+      ],
+    },
+  };
+  const hash = encodeConfigToHash(config);
+  expect(decodeConfigFromHash(hash)).toEqual(config);
+});
+
+test("returns null for a custom fill with an invalid type", () => {
+  const badConfig = { ...DEFAULT_CONFIG, customBackground: { type: "not-a-fill-type", color: "#fff" } };
+  const badPayload = btoa(JSON.stringify(badConfig));
+  expect(decodeConfigFromHash(badPayload)).toBeNull();
+});

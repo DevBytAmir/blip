@@ -26,3 +26,17 @@ test("deleteSavedDesign removes only the matching entry", () => {
 test("listSavedDesigns returns an empty array when nothing is saved", () => {
   expect(listSavedDesigns()).toEqual([]);
 });
+
+test("listSavedDesigns filters out entries with a malformed config", () => {
+  localStorage.setItem(
+    "blip.designs",
+    JSON.stringify([
+      { id: "1", name: "Good", config: DEFAULT_CONFIG, createdAt: 1 },
+      { id: "2", name: "Bad", config: { ...DEFAULT_CONFIG, geometry: "not-real" }, createdAt: 2 },
+      { id: "3", name: "Missing id", config: DEFAULT_CONFIG },
+    ])
+  );
+  const designs = listSavedDesigns();
+  expect(designs).toHaveLength(1);
+  expect(designs[0].name).toBe("Good");
+});

@@ -87,15 +87,13 @@ export default function AvatarPreview({ config }: { config: MorseConfig }) {
     });
   }, [letters, config.geometry, strokeWidth, spacing, config.rotation]);
 
-  const bg = resolveFill(theme.background, fillId("bg", theme.id));
-  const mark = resolveFill(theme.mark, fillId("mark", theme.id));
+  const bg = resolveFill(config.customBackground ?? theme.background, fillId("bg", theme.id));
+  const mark = resolveFill(config.customMarkColor ?? theme.mark, fillId("mark", theme.id));
   const clipId = `clip-${config.frame}`;
 
   return (
     <svg
       data-testid="avatar-svg"
-      width={280}
-      height={280}
       viewBox={`0 0 ${SIZE} ${SIZE}`}
       role="img"
       aria-label={`Morse avatar for ${config.text || "empty input"}`}

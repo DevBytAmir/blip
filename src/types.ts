@@ -9,6 +9,10 @@ export type GeometryId =
 
 export type FrameShape = "square" | "circle" | "rounded-square";
 
+export type FillDef =
+  | { type: "solid"; color: string }
+  | { type: "gradient"; angle: number; stops: { offset: number; color: string }[] };
+
 export interface MorseConfig {
   text: string;
   style: StyleId;
@@ -18,6 +22,8 @@ export interface MorseConfig {
   strokeWidth: number;
   spacing: number;
   rotation: number;
+  customBackground: FillDef | null;
+  customMarkColor: FillDef | null;
 }
 
 export interface FieldTouched {
@@ -34,4 +40,6 @@ export const DEFAULT_CONFIG: MorseConfig = {
   strokeWidth: 8,
   spacing: 2.2,
   rotation: 0,
+  customBackground: null,
+  customMarkColor: null,
 };

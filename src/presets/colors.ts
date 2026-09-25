@@ -1,8 +1,6 @@
-import type { ColorThemeId } from "../types";
+import type { ColorThemeId, FillDef } from "../types";
 
-export type FillDef =
-  | { type: "solid"; color: string }
-  | { type: "gradient"; angle: number; stops: { offset: number; color: string }[] };
+export type { FillDef };
 
 export interface ColorTheme {
   id: ColorThemeId;
