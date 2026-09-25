@@ -1,18 +1,30 @@
+import { usesRotation, usesSpacing } from "../geometries/capabilities";
 import type { FieldTouched, FrameShape, MorseConfig } from "../types";
 
 const FRAME_SHAPES: FrameShape[] = ["square", "circle", "rounded-square"];
+const FRAME_SHAPE_LABELS: Record<FrameShape, string> = {
+  square: "Square",
+  circle: "Circle",
+  "rounded-square": "Rounded square",
+};
+const FRAME_SHAPE_DESCRIPTIONS: Record<FrameShape, string> = {
+  square: "square frame, sharp corners",
+  circle: "circle frame, fully rounded",
+  "rounded-square": "rounded-square frame, soft corners",
+};
 
 export default function FineTunePanel({
   config,
-  touched,
   onConfigChange,
   onTouchedChange,
 }: {
   config: MorseConfig;
-  touched: FieldTouched;
   onConfigChange: (patch: Partial<MorseConfig>) => void;
   onTouchedChange: (patch: Partial<FieldTouched>) => void;
 }) {
+  const spacingApplies = usesSpacing(config.geometry);
+  const rotationApplies = usesRotation(config.geometry);
+
   return (
     <div className="fine-tune">
       <div className="field">
@@ -30,8 +42,10 @@ export default function FineTunePanel({
         />
       </div>
 
-      <div className="field">
-        <label htmlFor="spacing" className="field-label">Spacing</label>
+      <div className={`field${spacingApplies ? "" : " field-disabled"}`}>
+        <label htmlFor="spacing" className="field-label">
+          Spacing{!spacingApplies && " (not used by this geometry)"}
+        </label>
         <input
           id="spacing"
           type="range"
@@ -39,6 +53,7 @@ export default function FineTunePanel({
           max={4}
           step={0.1}
           value={config.spacing}
+          disabled={!spacingApplies}
           onChange={(e) => {
             onConfigChange({ spacing: Number(e.target.value) });
             onTouchedChange({ spacing: true });
@@ -46,30 +61,37 @@ export default function FineTunePanel({
         />
       </div>
 
-      <div className="field">
-        <label htmlFor="rotation" className="field-label">Rotation</label>
+      <div className={`field${rotationApplies ? "" : " field-disabled"}`}>
+        <label htmlFor="rotation" className="field-label">
+          Rotation{!rotationApplies && " (not used by this geometry)"}
+        </label>
         <input
           id="rotation"
           type="range"
           min={0}
           max={359}
           value={config.rotation}
+          disabled={!rotationApplies}
           onChange={(e) => onConfigChange({ rotation: Number(e.target.value) })}
         />
       </div>
 
-      <div role="group" aria-label="Frame shape" className="picker-grid">
-        {FRAME_SHAPES.map((shape) => (
-          <button
-            key={shape}
-            type="button"
-            className="chip"
-            aria-pressed={config.frame === shape}
-            onClick={() => onConfigChange({ frame: shape })}
-          >
-            {shape}
-          </button>
-        ))}
+      <div className="field">
+        <span className="field-label">Frame shape</span>
+        <div role="group" aria-label="Frame shape" className="picker-grid">
+          {FRAME_SHAPES.map((shape) => (
+            <button
+              key={shape}
+              type="button"
+              className="chip"
+              aria-pressed={config.frame === shape}
+              aria-label={FRAME_SHAPE_DESCRIPTIONS[shape]}
+              onClick={() => onConfigChange({ frame: shape })}
+            >
+              {FRAME_SHAPE_LABELS[shape]}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
