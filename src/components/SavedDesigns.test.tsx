@@ -21,5 +21,5 @@ test("lists saved designs and selects one on click", async () => {
 
 test("shows a message when there are no saved designs", () => {
   render(<SavedDesigns onSelect={() => {}} />);
-  expect(screen.getByText(/no saved designs/i)).toBeInTheDocument();
+  expect(screen.getByText(/nothing saved yet/i)).toBeInTheDocument();
 });

@@ -6,7 +6,7 @@ export default function SavedDesigns({ onSelect }: { onSelect: (config: MorseCon
   const [designs, setDesigns] = useState(listSavedDesigns());
 
   if (designs.length === 0) {
-    return <p className="status-message">No saved designs yet.</p>;
+    return <p className="status-message">Nothing saved yet.</p>;
   }
 
   return (

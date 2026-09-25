@@ -33,8 +33,8 @@ export default function TextInput({ value, onChange, geometry }: TextInputProps)
       <input
         id="morse-text"
         type="text"
-        role="textbox"
         className="text-input"
+        placeholder="Type a name, a word, anything..."
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />

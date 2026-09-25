@@ -1,15 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 import AvatarPreview from "./components/AvatarPreview";
 import TextInput from "./components/TextInput";
-import StepTabs from "./components/StepTabs";
+import StylePicker from "./components/StylePicker";
 import FineTunePanel from "./components/FineTunePanel";
+import ColorPanel from "./components/ColorPanel";
+import GeometryPicker from "./components/GeometryPicker";
 import RandomizeButton from "./components/RandomizeButton";
 import SavedDesigns from "./components/SavedDesigns";
 import ExportPanel from "./components/ExportPanel";
+import ThemeToggle from "./components/ThemeToggle";
 import { STYLE_PRESETS } from "./presets/styles";
 import { decodeConfigFromHash, encodeConfigToHash } from "./urlState";
 import { saveDesign } from "./savedDesigns";
 import { DEFAULT_CONFIG, type FieldTouched, type MorseConfig, type StyleId } from "./types";
+
+type Theme = "dark" | "light";
+const THEME_STORAGE_KEY = "blip.theme";
 
 function readConfigFromLocation(): { config: MorseConfig; restoreFailed: boolean } {
   const hash = window.location.hash.replace(/^#c=/, "");
@@ -20,16 +26,37 @@ function readConfigFromLocation(): { config: MorseConfig; restoreFailed: boolean
     : { config: DEFAULT_CONFIG, restoreFailed: true };
 }
 
+function readInitialTheme(): Theme {
+  const stored = localStorage.getItem(THEME_STORAGE_KEY);
+  if (stored === "light" || stored === "dark") return stored;
+  try {
+    if (window.matchMedia("(prefers-color-scheme: light)").matches) {
+      return "light";
+    }
+  } catch {
+    // matchMedia unavailable; fall through to the default.
+  }
+  return "dark";
+}
+
 export default function App() {
   const initial = useRef(readConfigFromLocation()).current;
   const [config, setConfig] = useState<MorseConfig>(initial.config);
   const [touched, setTouched] = useState<FieldTouched>({ strokeWidth: false, spacing: false });
   const [restoreFailed] = useState(initial.restoreFailed);
+  const [savedVersion, setSavedVersion] = useState(0);
+  const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">("idle");
+  const [theme, setTheme] = useState<Theme>(readInitialTheme);
   const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
     window.history.replaceState(null, "", `#c=${encodeConfigToHash(config)}`);
   }, [config]);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+  }, [theme]);
 
   function applyConfigPatch(patch: Partial<MorseConfig>) {
     setConfig((prev) => {
@@ -43,60 +70,91 @@ export default function App() {
     });
   }
 
+  function handleSave() {
+    saveDesign(config.text || "Untitled", config);
+    setSavedVersion((v) => v + 1);
+  }
+
+  async function handleCopyLink() {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopyStatus("copied");
+    } catch {
+      setCopyStatus("failed");
+    }
+  }
+
   return (
     <main className="app">
-      <h1 className="app-header">Blip</h1>
+      <div className="app-header-row">
+        <h1 className="app-header">Blip</h1>
+        <ThemeToggle theme={theme} onToggle={() => setTheme((t) => (t === "dark" ? "light" : "dark"))} />
+      </div>
       {restoreFailed && (
         <p role="status" className="status-banner">
           Couldn't restore that link, showing defaults instead.
         </p>
       )}
 
-      <section className="field panel" aria-label="Word">
-        <TextInput
-          value={config.text}
-          onChange={(text) => applyConfigPatch({ text })}
-          geometry={config.geometry}
-        />
-      </section>
+      <div className="app-layout">
+        <div className="app-panels">
+          <section className="field word-banner" aria-label="Word">
+            <TextInput
+              value={config.text}
+              onChange={(text) => applyConfigPatch({ text })}
+              geometry={config.geometry}
+            />
+          </section>
 
-      <AvatarPreviewWithRef config={config} svgRef={svgRef} />
+          <section className="panel" aria-labelledby="geometry-heading">
+            <h2 id="geometry-heading" className="panel-heading">Geometry</h2>
+            <GeometryPicker
+              value={config.geometry}
+              onChange={(geometry) => applyConfigPatch({ geometry })}
+            />
+          </section>
 
-      <section className="panel" aria-labelledby="customize-heading">
-        <h2 id="customize-heading" className="panel-heading">Customize</h2>
-        <StepTabs config={config} onConfigChange={applyConfigPatch} />
-      </section>
+          <section className="panel" aria-labelledby="style-heading">
+            <h2 id="style-heading" className="panel-heading">Style</h2>
+            <div className="fine-tune">
+              <StylePicker value={config.style} onChange={(style) => applyConfigPatch({ style })} />
+              <FineTunePanel
+                config={config}
+                onConfigChange={applyConfigPatch}
+                onTouchedChange={(patch) => setTouched((prev) => ({ ...prev, ...patch }))}
+              />
+            </div>
+          </section>
 
-      <section className="panel" aria-labelledby="finetune-heading">
-        <h2 id="finetune-heading" className="panel-heading">Fine-tune</h2>
-        <FineTunePanel
-          config={config}
-          touched={touched}
-          onConfigChange={applyConfigPatch}
-          onTouchedChange={(patch) => setTouched((prev) => ({ ...prev, ...patch }))}
-        />
-      </section>
+          <section className="panel" aria-labelledby="color-heading">
+            <h2 id="color-heading" className="panel-heading">Color</h2>
+            <ColorPanel config={config} onConfigChange={applyConfigPatch} />
+          </section>
 
-      <section className="panel button-row" aria-label="Quick actions">
-        <RandomizeButton onRandomize={applyConfigPatch} />
-        <button
-          type="button"
-          className="action"
-          onClick={() => saveDesign(config.text || "Untitled", config)}
-        >
-          Save design
-        </button>
-      </section>
+          <section className="panel" aria-labelledby="export-heading">
+            <h2 id="export-heading" className="panel-heading">Export</h2>
+            <ExportPanel svgRef={svgRef} onShare={handleCopyLink} shareStatus={copyStatus} />
+          </section>
 
-      <section className="panel" aria-labelledby="export-heading">
-        <h2 id="export-heading" className="panel-heading">Export</h2>
-        <ExportPanel svgRef={svgRef} />
-      </section>
+          <section className="panel" aria-labelledby="saved-heading">
+            <h2 id="saved-heading" className="panel-heading">Stash</h2>
+            <button
+              type="button"
+              className="action save-design-button"
+              onClick={handleSave}
+              aria-label="Keep this one: save it to your browser's stash"
+            >
+              Keep this one
+            </button>
+            <SavedDesigns key={savedVersion} onSelect={(saved) => setConfig(saved)} />
+          </section>
+        </div>
 
-      <section className="panel" aria-labelledby="saved-heading">
-        <h2 id="saved-heading" className="panel-heading">Your designs</h2>
-        <SavedDesigns onSelect={(saved) => setConfig(saved)} />
-      </section>
+        <div className="app-preview-column">
+          <AvatarPreviewWithRef config={config} svgRef={svgRef} />
+          <RandomizeButton onRandomize={applyConfigPatch} />
+        </div>
+      </div>
     </main>
   );
 }

@@ -27,6 +27,7 @@ export default function GeometryPicker({
           type="button"
           className="chip"
           aria-pressed={id === value}
+          aria-label={`${GEOMETRY_LABELS[id]} layout`}
           onClick={() => onChange(id)}
         >
           {GEOMETRY_LABELS[id]}

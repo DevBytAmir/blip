@@ -16,6 +16,7 @@ export default function StylePicker({
           type="button"
           className="chip"
           aria-pressed={preset.id === value}
+          aria-label={`${preset.label} style`}
           onClick={() => onChange(preset.id)}
         >
           {preset.label}
