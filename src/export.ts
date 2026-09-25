@@ -43,24 +43,14 @@ export function exportPngBlob(svg: SVGSVGElement, resolution: number): Promise<B
   );
 }
 
-export async function copyPngToClipboard(svg: SVGSVGElement, resolution: number): Promise<boolean> {
-  if (!("clipboard" in navigator) || typeof ClipboardItem === "undefined") {
-    return false;
-  }
-  try {
-    const blob = await exportPngBlob(svg, resolution);
-    await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 export function downloadBlob(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
   link.download = filename;
   link.click();
-  URL.revokeObjectURL(url);
+  // Deferred so the browser has started the download before the object URL
+  // is revoked -- revoking synchronously can cancel the download in some
+  // older WebViews.
+  setTimeout(() => URL.revokeObjectURL(url), 0);
 }
