@@ -40,7 +40,7 @@ export interface FieldTouched {
 }
 
 export const DEFAULT_CONFIG: MorseConfig = {
-  text: "BLIP",
+  text: "",
   style: "bold-blocky",
   color: "mono-dark",
   geometry: "grid",
