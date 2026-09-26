@@ -3,7 +3,7 @@ import { deleteSavedDesign, listSavedDesigns } from "../savedDesigns";
 import type { MorseConfig } from "../types";
 
 export default function SavedDesigns({ onSelect }: { onSelect: (config: MorseConfig) => void }) {
-  const [designs, setDesigns] = useState(listSavedDesigns());
+  const [designs, setDesigns] = useState(() => listSavedDesigns());
 
   if (designs.length === 0) {
     return <p className="status-message">Nothing saved yet.</p>;

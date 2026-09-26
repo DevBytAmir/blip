@@ -2,6 +2,11 @@ import { createRef } from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import ExportPanel from "./ExportPanel";
+import * as exportModule from "../export";
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 function TestHarness() {
   const ref = createRef<SVGSVGElement>();
@@ -86,4 +91,33 @@ test("shows a confirmation message when shareStatus is copied", () => {
 test("does not render a Share button when onShare is not provided", () => {
   render(<TestHarness />);
   expect(screen.queryByRole("button", { name: /^share/i })).toBeNull();
+});
+
+test("shows a preparing status while the PNG export is in flight, then a success message", async () => {
+  const user = userEvent.setup();
+  let resolveExport!: (blob: Blob) => void;
+  vi.spyOn(exportModule, "exportPngBlob").mockReturnValue(
+    new Promise((resolve) => {
+      resolveExport = resolve;
+    })
+  );
+  vi.spyOn(exportModule, "downloadBlob").mockImplementation(() => {});
+
+  render(<TestHarness />);
+  await user.click(screen.getByRole("button", { name: /download png/i }));
+
+  expect(screen.getByText(/preparing/i)).toBeInTheDocument();
+
+  resolveExport(new Blob());
+  expect(await screen.findByText(/downloaded/i)).toBeInTheDocument();
+});
+
+test("shows a failure message when the PNG export rejects, instead of failing silently", async () => {
+  const user = userEvent.setup();
+  vi.spyOn(exportModule, "exportPngBlob").mockRejectedValue(new Error("rasterize failed"));
+
+  render(<TestHarness />);
+  await user.click(screen.getByRole("button", { name: /download png/i }));
+
+  expect(await screen.findByText(/couldn't export the png/i)).toBeInTheDocument();
 });

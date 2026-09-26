@@ -23,6 +23,7 @@ export default function ExportPanel({
   const [resolution, setResolution] = useState<number>(512);
   const [isCustom, setIsCustom] = useState(false);
   const [customResolution, setCustomResolution] = useState(DEFAULT_CUSTOM_RESOLUTION);
+  const [pngStatus, setPngStatus] = useState<"idle" | "preparing" | "done" | "failed">("idle");
 
   const withSvg = (fn: (svg: SVGSVGElement) => void) => {
     if (svgRef.current) fn(svgRef.current);
@@ -73,8 +74,14 @@ export default function ExportPanel({
           className="action"
           onClick={() =>
             withSvg(async (svg) => {
-              const blob = await exportPngBlob(svg, effectiveResolution);
-              downloadBlob(blob, "blip.png");
+              setPngStatus("preparing");
+              try {
+                const blob = await exportPngBlob(svg, effectiveResolution);
+                downloadBlob(blob, "blip.png");
+                setPngStatus("done");
+              } catch {
+                setPngStatus("failed");
+              }
             })
           }
         >
@@ -100,6 +107,18 @@ export default function ExportPanel({
           </button>
         )}
       </div>
+
+      {pngStatus === "preparing" && (
+        <p role="status" className="status-message">Preparing your PNG...</p>
+      )}
+      {pngStatus === "done" && (
+        <p role="status" className="status-message">Downloaded.</p>
+      )}
+      {pngStatus === "failed" && (
+        <p role="status" className="status-message">
+          Couldn't export the PNG -- try a smaller resolution or use Download SVG instead.
+        </p>
+      )}
 
       {shareStatus === "copied" && (
         <p role="status" className="status-message">Link copied to clipboard.</p>
