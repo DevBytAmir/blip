@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { encodeMorse } from "./morse";
+import AppLogo from "./components/AppLogo";
 import AvatarPreview from "./components/AvatarPreview";
 import TextInput from "./components/TextInput";
 import StylePicker from "./components/StylePicker";
@@ -116,7 +117,7 @@ export default function App() {
   return (
     <main className="app">
       <div className="app-header-row">
-        <h1 className="app-header">Blip</h1>
+        <AppLogo word="BLIP" />
         <ThemeToggle theme={theme} onToggle={() => setTheme((t) => (t === "dark" ? "light" : "dark"))} />
       </div>
       {restoreFailed && (
