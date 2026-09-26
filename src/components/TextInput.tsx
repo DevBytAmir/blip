@@ -1,21 +1,8 @@
-import { encodeMorse, totalSymbolCount, type MorseLetter } from "../morse";
+import { encodeMorse } from "../morse";
+import { isLikelyCramped } from "../geometries/capabilities";
 import type { GeometryId } from "../types";
 
-const COMFORTABLE_SYMBOL_CAP: Record<GeometryId, number> = {
-  grid: 45,
-  pixel: 45,
-  honeycomb: 40,
-  circles: 24,
-  orbits: 24,
-  barcode: 70,
-  spokes: 60,
-  spiral: 70,
-  wave: 70,
-};
-
-export function isLikelyCramped(letters: MorseLetter[], geometry: GeometryId): boolean {
-  return totalSymbolCount(letters) > COMFORTABLE_SYMBOL_CAP[geometry];
-}
+export { isLikelyCramped };
 
 interface TextInputProps {
   value: string;
@@ -38,6 +25,9 @@ export default function TextInput({ value, onChange, geometry }: TextInputProps)
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
+      {letters.length > 0 && (
+        <p className="morse-caption">{letters.map((l) => l.symbols.join("")).join(" ")}</p>
+      )}
       {strippedCount > 0 && (
         <p role="status" className="status-message">
           {strippedCount} character{strippedCount === 1 ? "" : "s"} removed (only A-Z and 0-9 can be

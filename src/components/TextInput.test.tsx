@@ -37,3 +37,13 @@ test("isLikelyCramped compares total symbol count against a per-geometry cap", (
   const { letters } = encodeMorse("SOS");
   expect(isLikelyCramped(letters, "grid")).toBe(false);
 });
+
+test("shows the literal morse sequence as a caption", () => {
+  render(<TextInput value="SOS" onChange={() => {}} geometry="grid" />);
+  expect(screen.getByText("... --- ...")).toBeInTheDocument();
+});
+
+test("shows no morse caption for empty input", () => {
+  render(<TextInput value="" onChange={() => {}} geometry="grid" />);
+  expect(screen.queryByText(/[.-]/)).toBeNull();
+});

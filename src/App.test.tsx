@@ -9,6 +9,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  vi.restoreAllMocks();
 });
 
 test("typing a word updates the avatar preview", async () => {
@@ -46,9 +47,30 @@ test("loading a corrupted shared link falls back to defaults with a notice inste
   expect(screen.getByTestId("avatar-svg")).toBeInTheDocument();
 });
 
+test("a hash that isn't a Blip share link at all does not trigger the restore-failed banner", () => {
+  window.location.hash = "#some-other-fragment";
+  render(<App />);
+  expect(screen.queryByText(/couldn't restore/i)).toBeNull();
+});
+
+test("Randomize's strokeWidth and spacing survive even though the patch also includes a style", async () => {
+  const user = userEvent.setup();
+  vi.spyOn(Math, "random").mockReturnValue(0.999999);
+  render(<App />);
+
+  await user.click(screen.getByRole("button", { name: /^randomize/i }));
+
+  const strokeWidth = (screen.getByLabelText(/stroke width/i) as HTMLInputElement).value;
+  // pickRandomConfig with Math.random() always at the top of its range picks
+  // strokeWidth 16, which no style preset uses -- if the style-preset reset
+  // clobbered it, this would instead be one of the presets' fixed values.
+  expect(strokeWidth).toBe("16");
+});
+
 test("clicking Keep this one immediately shows it in the stash list", async () => {
   const user = userEvent.setup();
   render(<App />);
+  await user.clear(screen.getByRole("textbox"));
   await user.type(screen.getByRole("textbox"), "COOL");
   await user.click(screen.getByRole("button", { name: /^keep this one/i }));
   expect(screen.getByRole("button", { name: /^cool$/i })).toBeInTheDocument();
@@ -105,6 +127,35 @@ test("a stored theme preference overrides the OS preference", () => {
 
   render(<App />);
   expect(document.documentElement.dataset.theme).toBe("dark");
+});
+
+test("renders without crashing when localStorage.getItem throws", () => {
+  vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+    throw new Error("storage disabled");
+  });
+  expect(() => render(<App />)).not.toThrow();
+});
+
+test("Randomize shows an Undo button that restores the previous config", async () => {
+  const user = userEvent.setup();
+  render(<App />);
+
+  expect(screen.queryByRole("button", { name: /^undo/i })).toBeNull();
+
+  const styleBefore = screen.getByRole("group", { name: /^style$/i }).querySelector(
+    '[aria-pressed="true"]'
+  )?.textContent;
+
+  await user.click(screen.getByRole("button", { name: /^randomize/i }));
+  expect(screen.getByRole("button", { name: /^undo/i })).toBeInTheDocument();
+
+  await user.click(screen.getByRole("button", { name: /^undo/i }));
+
+  const styleAfterUndo = screen.getByRole("group", { name: /^style$/i }).querySelector(
+    '[aria-pressed="true"]'
+  )?.textContent;
+  expect(styleAfterUndo).toBe(styleBefore);
+  expect(screen.queryByRole("button", { name: /^undo/i })).toBeNull();
 });
 
 test("theme toggle switches the page between dark and light and remembers the choice", async () => {

@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { encodeMorse } from "./morse";
 import AvatarPreview from "./components/AvatarPreview";
 import TextInput from "./components/TextInput";
 import StylePicker from "./components/StylePicker";
@@ -18,7 +19,9 @@ type Theme = "dark" | "light";
 const THEME_STORAGE_KEY = "blip.theme";
 
 function readConfigFromLocation(): { config: MorseConfig; restoreFailed: boolean } {
-  const hash = window.location.hash.replace(/^#c=/, "");
+  const rawHash = window.location.hash;
+  if (!rawHash.startsWith("#c=")) return { config: DEFAULT_CONFIG, restoreFailed: false };
+  const hash = rawHash.slice(3);
   if (!hash) return { config: DEFAULT_CONFIG, restoreFailed: false };
   const decoded = decodeConfigFromHash(hash);
   return decoded
@@ -27,8 +30,12 @@ function readConfigFromLocation(): { config: MorseConfig; restoreFailed: boolean
 }
 
 function readInitialTheme(): Theme {
-  const stored = localStorage.getItem(THEME_STORAGE_KEY);
-  if (stored === "light" || stored === "dark") return stored;
+  try {
+    const stored = localStorage.getItem(THEME_STORAGE_KEY);
+    if (stored === "light" || stored === "dark") return stored;
+  } catch {
+    // localStorage unavailable; fall through to OS preference / default.
+  }
   try {
     if (window.matchMedia("(prefers-color-scheme: light)").matches) {
       return "light";
@@ -47,7 +54,9 @@ export default function App() {
   const [savedVersion, setSavedVersion] = useState(0);
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">("idle");
   const [theme, setTheme] = useState<Theme>(readInitialTheme);
+  const [previousConfig, setPreviousConfig] = useState<MorseConfig | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
+  const { letters } = useMemo(() => encodeMorse(config.text), [config.text]);
 
   useEffect(() => {
     window.history.replaceState(null, "", `#c=${encodeConfigToHash(config)}`);
@@ -55,7 +64,11 @@ export default function App() {
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
-    localStorage.setItem(THEME_STORAGE_KEY, theme);
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch {
+      // localStorage unavailable; the theme still applies for this session.
+    }
   }, [theme]);
 
   function applyConfigPatch(patch: Partial<MorseConfig>) {
@@ -63,11 +76,27 @@ export default function App() {
       const next = { ...prev, ...patch };
       if (patch.style) {
         const preset = STYLE_PRESETS[patch.style as StyleId];
-        if (!touched.strokeWidth) next.strokeWidth = preset.strokeWidth;
-        if (!touched.spacing) next.spacing = preset.spacing;
+        if (!touched.strokeWidth && patch.strokeWidth === undefined) {
+          next.strokeWidth = preset.strokeWidth;
+        }
+        if (!touched.spacing && patch.spacing === undefined) {
+          next.spacing = preset.spacing;
+        }
       }
       return next;
     });
+  }
+
+  function handleRandomize(patch: Partial<MorseConfig>) {
+    setPreviousConfig(config);
+    applyConfigPatch(patch);
+  }
+
+  function handleUndo() {
+    if (previousConfig) {
+      setConfig(previousConfig);
+      setPreviousConfig(null);
+    }
   }
 
   function handleSave() {
@@ -111,6 +140,7 @@ export default function App() {
             <GeometryPicker
               value={config.geometry}
               onChange={(geometry) => applyConfigPatch({ geometry })}
+              letters={letters}
             />
           </section>
 
@@ -152,7 +182,14 @@ export default function App() {
 
         <div className="app-preview-column">
           <AvatarPreviewWithRef config={config} svgRef={svgRef} />
-          <RandomizeButton onRandomize={applyConfigPatch} />
+          <div className="button-row">
+            <RandomizeButton onRandomize={handleRandomize} />
+            {previousConfig && (
+              <button type="button" className="action" onClick={handleUndo}>
+                Undo
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </main>
@@ -166,14 +203,16 @@ function AvatarPreviewWithRef({
   config: MorseConfig;
   svgRef: React.RefObject<SVGSVGElement>;
 }) {
+  const containerRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      const svg = node?.querySelector<SVGSVGElement>('[data-testid="avatar-svg"]');
+      if (svg) (svgRef as React.MutableRefObject<SVGSVGElement | null>).current = svg;
+    },
+    [svgRef]
+  );
+
   return (
-    <div
-      className="avatar-stage"
-      ref={(node) => {
-        const svg = node?.querySelector<SVGSVGElement>('[data-testid="avatar-svg"]');
-        if (svg) (svgRef as React.MutableRefObject<SVGSVGElement | null>).current = svg;
-      }}
-    >
+    <div className="avatar-stage" ref={containerRef}>
       <AvatarPreview config={config} />
     </div>
   );
