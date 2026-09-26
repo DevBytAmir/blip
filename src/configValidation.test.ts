@@ -42,3 +42,28 @@ test("accepts a valid custom solid fill and rejects a malformed one", () => {
     isValidConfig({ ...DEFAULT_CONFIG, customBackground: { type: "solid", color: 123 } })
   ).toBe(false);
 });
+
+test("rejects a gradient fill with fewer than 2 stops", () => {
+  expect(
+    isValidConfig({
+      ...DEFAULT_CONFIG,
+      customBackground: { type: "gradient", angle: 0, stops: [{ offset: 0, color: "#fff" }] },
+    })
+  ).toBe(false);
+});
+
+test("accepts a gradient fill with exactly 2 stops", () => {
+  expect(
+    isValidConfig({
+      ...DEFAULT_CONFIG,
+      customBackground: {
+        type: "gradient",
+        angle: 0,
+        stops: [
+          { offset: 0, color: "#000" },
+          { offset: 1, color: "#fff" },
+        ],
+      },
+    })
+  ).toBe(true);
+});

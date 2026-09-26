@@ -1,13 +1,15 @@
-import type { ColorThemeId, FillDef, FrameShape, GeometryId, MorseConfig, StyleId } from "./types";
-
-const STYLE_IDS: StyleId[] = ["bold-blocky", "delicate-thin", "retro-terminal", "playful"];
-const COLOR_IDS: ColorThemeId[] = [
-  "mono-dark", "mono-light", "terminal", "neon", "sunset", "pastel", "duotone",
-];
-const GEOMETRY_IDS: GeometryId[] = [
-  "grid", "circles", "spokes", "spiral", "honeycomb", "barcode", "wave", "orbits", "pixel",
-];
-const FRAME_SHAPES: FrameShape[] = ["square", "circle", "rounded-square"];
+import {
+  COLOR_THEME_IDS,
+  FRAME_SHAPES,
+  GEOMETRY_IDS,
+  STYLE_IDS,
+  type ColorThemeId,
+  type FillDef,
+  type FrameShape,
+  type GeometryId,
+  type MorseConfig,
+  type StyleId,
+} from "./types";
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value);
@@ -21,6 +23,7 @@ function isValidFill(value: unknown): value is FillDef {
     return (
       isFiniteNumber(v.angle) &&
       Array.isArray(v.stops) &&
+      v.stops.length >= 2 &&
       v.stops.every(
         (stop) =>
           typeof stop === "object" &&
@@ -43,7 +46,7 @@ export function isValidConfig(value: unknown): value is MorseConfig {
   return (
     typeof v.text === "string" &&
     STYLE_IDS.includes(v.style as StyleId) &&
-    COLOR_IDS.includes(v.color as ColorThemeId) &&
+    COLOR_THEME_IDS.includes(v.color as ColorThemeId) &&
     GEOMETRY_IDS.includes(v.geometry as GeometryId) &&
     FRAME_SHAPES.includes(v.frame as FrameShape) &&
     isFiniteNumber(v.strokeWidth) && v.strokeWidth > 0 && v.strokeWidth <= 100 &&

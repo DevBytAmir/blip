@@ -45,3 +45,10 @@ test("returns null for a custom fill with an invalid type", () => {
   const badPayload = btoa(JSON.stringify(badConfig));
   expect(decodeConfigFromHash(badPayload)).toBeNull();
 });
+
+test("round-trips text containing non-Latin-1 characters without throwing", () => {
+  const config = { ...DEFAULT_CONFIG, text: "привет 你好 😀" };
+  expect(() => encodeConfigToHash(config)).not.toThrow();
+  const hash = encodeConfigToHash(config);
+  expect(decodeConfigFromHash(hash)).toEqual(config);
+});

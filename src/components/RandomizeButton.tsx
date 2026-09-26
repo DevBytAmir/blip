@@ -1,10 +1,9 @@
-import { STYLE_PRESETS } from "../presets/styles";
-import { COLOR_THEMES } from "../presets/colors";
-import type { ColorThemeId, GeometryId, MorseConfig, StyleId } from "../types";
-
-const GEOMETRY_IDS: GeometryId[] = [
-  "grid", "circles", "spokes", "spiral", "honeycomb", "barcode", "wave", "orbits", "pixel",
-];
+import {
+  COLOR_THEME_IDS,
+  GEOMETRY_IDS,
+  STYLE_IDS,
+  type MorseConfig,
+} from "../types";
 
 function pick<T>(items: T[]): T {
   return items[Math.floor(Math.random() * items.length)];
@@ -14,8 +13,8 @@ export function pickRandomConfig(): Pick<
   MorseConfig,
   "style" | "color" | "geometry" | "strokeWidth" | "spacing" | "rotation"
 > {
-  const style = pick(Object.keys(STYLE_PRESETS) as StyleId[]);
-  const color = pick(Object.keys(COLOR_THEMES) as ColorThemeId[]);
+  const style = pick(STYLE_IDS);
+  const color = pick(COLOR_THEME_IDS);
   const geometry = pick(GEOMETRY_IDS);
   return {
     style,

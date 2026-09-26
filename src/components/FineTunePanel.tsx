@@ -1,7 +1,6 @@
 import { usesRotation, usesSpacing } from "../geometries/capabilities";
-import type { FieldTouched, FrameShape, MorseConfig } from "../types";
+import { FRAME_SHAPES, type FieldTouched, type FrameShape, type MorseConfig } from "../types";
 
-const FRAME_SHAPES: FrameShape[] = ["square", "circle", "rounded-square"];
 const FRAME_SHAPE_LABELS: Record<FrameShape, string> = {
   square: "Square",
   circle: "Circle",

@@ -27,6 +27,16 @@ test("renderOrbits produces one tilted ellipse per letter", () => {
   expect(new Set(rotations).size).toBeGreaterThan(1);
 });
 
+test("dashArray has an even length so the trailing gap doesn't get reinterpreted as a dash", () => {
+  const { letters } = encodeMorse("SOS");
+  const marks = renderCircles(letters, params);
+  for (const mark of marks) {
+    if (mark.kind === "ring") {
+      expect(mark.dashArray.length % 2).toBe(0);
+    }
+  }
+});
+
 test("ring radius never goes to zero or negative for very long input", () => {
   const { letters } = encodeMorse("THEQUICKBROWNFOXJUMPSOVERALAZYDOG");
   const marks = renderCircles(letters, params);

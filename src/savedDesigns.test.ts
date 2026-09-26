@@ -1,9 +1,13 @@
-import { beforeEach, expect, test } from "vitest";
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { deleteSavedDesign, listSavedDesigns, saveDesign } from "./savedDesigns";
 import { DEFAULT_CONFIG } from "./types";
 
 beforeEach(() => {
   localStorage.clear();
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 
 test("saveDesign persists and listSavedDesigns returns it", () => {
@@ -39,4 +43,19 @@ test("listSavedDesigns filters out entries with a malformed config", () => {
   const designs = listSavedDesigns();
   expect(designs).toHaveLength(1);
   expect(designs[0].name).toBe("Good");
+});
+
+test("listSavedDesigns returns an empty array instead of throwing when localStorage.getItem throws", () => {
+  vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+    throw new Error("storage disabled");
+  });
+  expect(() => listSavedDesigns()).not.toThrow();
+  expect(listSavedDesigns()).toEqual([]);
+});
+
+test("saveDesign does not throw when localStorage.setItem throws", () => {
+  vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+    throw new Error("storage disabled");
+  });
+  expect(() => saveDesign("X", DEFAULT_CONFIG)).not.toThrow();
 });

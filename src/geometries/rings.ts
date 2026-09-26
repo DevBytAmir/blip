@@ -24,7 +24,10 @@ function renderRingsBase(
     letter.symbols.forEach((symbol) => {
       dashArray.push(symbol === "." ? unit : unit * 2.5, unit * 1.2);
     });
-    dashArray.push(circumference);
+    // A trailing pair (zero-length dash, full circumference gap) keeps the
+    // array length even so SVG's odd-length dasharray duplication rule
+    // doesn't shift parity and turn this closing gap into a visible dash.
+    dashArray.push(0, circumference);
 
     return {
       kind: "ring",

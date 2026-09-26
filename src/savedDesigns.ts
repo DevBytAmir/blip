@@ -22,9 +22,9 @@ function isValidSavedDesign(value: unknown): value is SavedDesign {
 }
 
 export function listSavedDesigns(): SavedDesign[] {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) return [];
   try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed.filter(isValidSavedDesign) : [];
   } catch {
@@ -33,7 +33,12 @@ export function listSavedDesigns(): SavedDesign[] {
 }
 
 function persist(designs: SavedDesign[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(designs));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(designs));
+  } catch {
+    // Storage unavailable (private browsing, sandboxed iframe, quota) --
+    // fail silently rather than crash the app.
+  }
 }
 
 export function saveDesign(name: string, config: MorseConfig): SavedDesign {
